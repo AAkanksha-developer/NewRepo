@@ -73,7 +73,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts/_ronix.sol": "Ronx"
+			"contracts/_ronx.sol": "Ronx"
 		},
 		"evmVersion": "cancun",
 		"libraries": {},
@@ -87,12 +87,12 @@
 		"remappings": []
 	},
 	"sources": {
-		"contracts/_ronix.sol": {
-			"keccak256": "0x8f1dd40a0b73133b46afff7518b511386ee3e65f9a61c2e37619ac16ed6b5023",
+		"contracts/_ronx.sol": {
+			"keccak256": "0x8b6f427ba78333e18a8c5241c2936a286984314bd75a93c01a30bf6a9f538858",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://8e54e51c7c60eb15a1cb32b7e2d009bd89a53c393af35a2ce40a66408abc5463",
-				"dweb:/ipfs/QmfDUUqb4gkm5yoZW4J5rJ5XtPHMopzSmKVb1ZdHanyU6i"
+				"bzz-raw://530fd3333ae0530a7bf5ef4e89920bca72a8e371b81dbb92adb281c0ba461889",
+				"dweb:/ipfs/QmZdCGDZf27yyM4jZKfAAq6mkNDSTH8z5qaZT3X3jiBWBS"
 			]
 		}
 	},

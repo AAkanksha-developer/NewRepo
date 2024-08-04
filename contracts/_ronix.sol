@@ -1,7 +1,3 @@
-/**
- *Submitted for verification at BscScan.com on 2021-05-31
-*/
-
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
@@ -91,8 +87,7 @@ pragma solidity ^0.8.0;
         return verifyCallResultFromTarget( success, returndata, errorMessage);
     }
     function verifyCallResultFromTarget( bool success, bytes memory returndata, string memory errorMessage) internal pure returns (bytes memory) {
-        
-     
+
         if(success) {
             if(returndata.length==0) {
                 return returndata;
@@ -214,8 +209,13 @@ pragma solidity ^0.8.0;
         string email;
         bytes32 passwordHash;
         string profilePicture;
+        uint  userId;
+        uint referrerId;
+        uint transactionFee;
+        uint8 levelId;
         string referralLink;
         uint partnersCount;
+        uint totalTransactions;
         mapping(uint8 => bool) activeX3Levels;
         mapping(uint8 => X3) x3Matrix;
         
@@ -251,6 +251,8 @@ pragma solidity ^0.8.0;
     event NewUserPlace(address indexed user, address indexed referrer, uint8 matrix, uint8 level, uint8 place);
     event MissedBUSDReceive(address indexed receiver, address indexed from, uint8 matrix, uint8 level);
     event SentExtraBUSDDividends(address indexed from, address indexed receiver, uint8 matrix, uint8 level);
+    event Transaction( address indexed user,uint indexed userId, uint transactionAmount, uint8 levelId,uint timestamp     
+    );
  }
 
  contract RonxMatrix is RonxBasic {
@@ -351,7 +353,7 @@ pragma solidity ^0.8.0;
             users[_userAddress].x3Matrix[level].currentReferrer = freeX3Referrer;
             users[_userAddress].activeX3Levels[level] = true;
             updateX3Referrer(_userAddress, freeX3Referrer, level);
-            
+            users[_userAddress].totalTransactions++;
             emit Upgrade(_userAddress, freeX3Referrer, 1, level);
         }
 
@@ -377,10 +379,12 @@ pragma solidity ^0.8.0;
         string memory profilePicture
     ) private {
         // Deduct 25 BUSD from the sender's account
+        uint256 transactionFee = (BASIC_PRICE * 2) + 5;
+        uint8 initialLevel = 1;
         depositToken.safeTransferFrom(msg.sender, address(this), (BASIC_PRICE*2)+5);
 
         require(!isUserExists(userAddress), "User already exists");
-        require(isUserExists(referrerAddress), "Referrer does not exist");
+        //require(isUserExists(referrerAddress), "Referrer does not exist");
 
         uint32 size;
         assembly {
@@ -400,7 +404,8 @@ pragma solidity ^0.8.0;
         user.passwordHash = keccak256(abi.encodePacked(password));
         user.profilePicture = profilePicture;
         user.referralLink = generateReferralLink(userAddress); 
-        user.activeX3Levels[1] = true; // Initialize the first level
+        user.activeX3Levels[initialLevel] = true;// Initialize the first level
+        user.totalTransactions = 1; 
         
         idToAddress[lastUserId] = userAddress;
         userIds[lastUserId] = userAddress;
@@ -410,9 +415,13 @@ pragma solidity ^0.8.0;
         users[userAddress].x3Matrix[1].currentReferrer = freeX3Referrer;
         users[freeX3Referrer].x3Matrix[1].referrals.push(userAddress);
         
-        updateX3Referrer(userAddress, freeX3Referrer, 1);
+        updateX3Referrer(userAddress, freeX3Referrer,  initialLevel);
+       
+
+        
 
         emit Registration(userAddress, referrerAddress, user.id, users[referrerAddress].id);
+        logTransaction(userAddress, transactionFee, initialLevel);
     }
      function generateReferralLink(address userAddress) private pure returns (string memory) {
         return string(abi.encodePacked("https://example.com/referral/", toAsciiString(userAddress)));
@@ -452,6 +461,7 @@ pragma solidity ^0.8.0;
     }
     function updateX3Referrer(address userAddress, address referrerAddress, uint8 level) private {
          users[referrerAddress].x3Matrix[level].referrals.push(userAddress);
+         users[referrerAddress].totalTransactions++;
          if (users[referrerAddress].x3Matrix[level].referrals.length < 3) {
             emit NewUserPlace(userAddress, referrerAddress, 1, level, uint8(users[referrerAddress].x3Matrix[level].referrals.length));
             return sendBUSDDividends(referrerAddress, userAddress, 1, level);
@@ -472,6 +482,8 @@ pragma solidity ^0.8.0;
             }
             
             users[referrerAddress].x3Matrix[level].reinvestCount++;
+             
+            users[referrerAddress].totalTransactions++; // Increment total transactions
             emit Reinvest(referrerAddress, freeReferrerAddress, userAddress, 1, level);
             updateX3Referrer(referrerAddress, freeReferrerAddress, level);
         } else {
@@ -528,4 +540,35 @@ pragma solidity ^0.8.0;
             //token.safeTransfer(multisig, token.balanceOf(address(this)));
         }
     }
+     function logTransaction(
+        address user,
+        uint amount,
+        uint8 level
+    ) private {
+        emit Transaction(user, users[user].id, amount, level, block.timestamp);
+    }
+
+function getTransactionHistory(
+    address user
+) public view returns (
+    address,
+    uint,
+    uint8[] memory levels,
+    uint[] memory timestamps,
+    uint totalTransactions,
+    uint[] memory cycles
+) {
+    uint8[] memory userLevels = new uint8[](LAST_LEVEL);
+    uint[] memory userTimestamps = new uint[](LAST_LEVEL);
+    uint[] memory userCycles = new uint[](LAST_LEVEL);
+
+    for (uint8 i = 1; i <= LAST_LEVEL; i++) {
+        if (users[user].activeX3Levels[i]) {
+            userLevels[i - 1] = i;
+            userTimestamps[i - 1] = block.timestamp; // Replace with actual timestamp logging if available
+            userCycles[i - 1] = users[user].x3Matrix[i].reinvestCount;
+        }
+    }
+    return (user, users[user].id, userLevels, userTimestamps, users[user].totalTransactions, userCycles);
+  }
  }
