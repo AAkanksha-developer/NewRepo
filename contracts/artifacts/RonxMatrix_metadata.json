@@ -351,6 +351,25 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "userAddress",
+						"type": "address"
+					}
+				],
+				"name": "generateReferralLink",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "getTotalRevenue",
 				"outputs": [
@@ -875,11 +894,11 @@
 	},
 	"sources": {
 		"contracts/_ronx.sol": {
-			"keccak256": "0x8b6f427ba78333e18a8c5241c2936a286984314bd75a93c01a30bf6a9f538858",
+			"keccak256": "0xe5068cdca816966f4fe2bafe8938b3118d4f5f6a87fb1fb30a01cc42d1977661",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://530fd3333ae0530a7bf5ef4e89920bca72a8e371b81dbb92adb281c0ba461889",
-				"dweb:/ipfs/QmZdCGDZf27yyM4jZKfAAq6mkNDSTH8z5qaZT3X3jiBWBS"
+				"bzz-raw://0df75beab423c8c66585c4e234c16a36a026a4065f690525509aca9bfd05314b",
+				"dweb:/ipfs/QmUuVjyXqR8rosWxYTGUEsUq8495xaLNCC1gWKW3r9LxVf"
 			]
 		}
 	},
